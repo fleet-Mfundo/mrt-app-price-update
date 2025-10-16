@@ -148,8 +148,13 @@ if st.button("🔍 Detect & Preview"):
     # --- Merge back into full dataset ---
     corrected_df = df.copy()
     mask = corrected_df[id_col] == chosen_id
-    line_map = dict(zip(subset[idx_col], subset[col]))
-    corrected_df.loc[mask, col] = corrected_df.loc[mask, idx_col].map(line_map).fillna(corrected_df.loc[mask, col])
+    rows_full = corrected_df[mask].shape[0]
+    rows_subset = subset.shape[0]
+    if rows_full != rows_subset:
+        st.error("Row count mismatch when merging back; aborting.")
+    else:
+        # assifn corrected values by position - this cannot duplicate or miss rows
+        corrected_df.loc[mask, col] = subset[col].values
 
     # Convert numeric column headers to int for Excel output
     def cast_headers(df):
